@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 20 — Global Chess Passport</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --ink: #172033;
+      --muted: #5e6b80;
+      --line: #dfe6ef;
+      --blue: #2457d6;
+      --blue-soft: #edf3ff;
+      --gold: #c58b18;
+      --danger: #a33131;
+      --danger-soft: #fff0f0;
+      --shadow: 0 18px 45px rgba(31, 51, 86, .10);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(36, 87, 214, .10), transparent 32rem),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.62;
+    }
+
+    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    header {
+      padding: 58px 0 40px;
+      color: white;
+      background: linear-gradient(135deg, #15254c, #2457d6 72%, #3f77e8);
+    }
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #cbd9ff;
+      font-size: .82rem;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 0; max-width: 900px; font-size: clamp(2rem, 5vw, 4rem); line-height: 1.08; letter-spacing: -.045em; }
+    .subtitle { max-width: 850px; margin: 18px 0 0; color: #e8eeff; font-size: 1.08rem; }
+
+    main { padding: 30px 0 70px; }
+    .toc, section, .callout {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .toc { padding: 22px 26px; margin-bottom: 26px; }
+    .toc strong { display: block; margin-bottom: 8px; }
+    .toc a { color: var(--blue); margin-right: 18px; text-decoration: none; font-weight: 700; }
+    .toc a:hover { text-decoration: underline; }
+    section { padding: clamp(22px, 4vw, 38px); margin: 24px 0; }
+    h2 { margin: 0 0 18px; font-size: clamp(1.45rem, 3vw, 2.1rem); line-height: 1.2; }
+    h3 { margin: 30px 0 10px; font-size: 1.22rem; color: #20396f; }
+    p { margin: 0 0 14px; }
+    ul { margin-top: 8px; padding-left: 1.35rem; }
+    li { margin: 8px 0; }
+    .muted { color: var(--muted); }
+    .lead { font-size: 1.08rem; }
+    .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 24px 0; }
+    .fact { padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--blue-soft); }
+    .fact b { display: block; margin-bottom: 5px; color: var(--blue); }
+    .callout { padding: 20px 24px; margin: 22px 0; border-left: 5px solid var(--gold); }
+    .warning { border-left-color: var(--danger); background: var(--danger-soft); }
+    table { width: 100%; border-collapse: collapse; margin: 18px 0 8px; font-size: .96rem; }
+    th, td { padding: 13px 14px; text-align: left; vertical-align: top; border: 1px solid var(--line); }
+    th { color: #fff; background: #213b76; font-weight: 800; }
+    tr:nth-child(even) td { background: #f8faff; }
+    .table-wrap { overflow-x: auto; }
+    code { padding: .12em .35em; border-radius: 5px; background: #e9eef8; color: #183873; }
+    a { color: var(--blue); }
+    .source { font-size: .92rem; color: var(--muted); }
+    footer { padding: 24px 0 50px; color: var(--muted); text-align: center; font-size: .9rem; }
+
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 20px, 1180px); }
+      header { padding: 40px 0 30px; }
+      .facts { grid-template-columns: 1fr; }
+      section { padding: 22px 18px; border-radius: 14px; }
+      th, td { min-width: 180px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell">
+      <p class="eyebrow">Sesión 23 · Build · solo en clase</p>
+      <h1>Lab 20 — Caso real: el Global Chess Passport de Algorand + World Chess</h1>
+      <p class="subtitle">Análisis de una propuesta real con DID, credenciales verificables, emisor, holder, verificador, revocación y divulgación selectiva.</p>
+    </div>
+  </header>
+
+  <main class="shell">
+    <nav class="toc" aria-label="Contenido">
+      <strong>Contenido</strong>
+      <a href="#caso">El caso</a>
+      <a href="#pasos">Pasos</a>
+      <a href="#entregable">Entregable</a>
+      <a href="#rubrica">Rúbrica</a>
+      <a href="#prohibido">Prohibido</a>
+    </nav>
+
+    <section id="caso">
+      <h2>5. BUILD — Lab 20 (solo en clase): caso real — el Global Chess Passport de Algorand + World Chess</h2>
+      <p><strong>Formato:</strong> solo en clase, ~30 minutos, en tríos, <strong>sin código y sin instalar nada</strong>. El instructor presenta el caso (5 min, fuera de los 30) y ustedes lo analizan con la plantilla del <strong>Apéndice A</strong>, mapeando cada pieza a §4. Entregan <strong>un solo reporte</strong> antes de salir. <strong>No hay homework de lab.</strong></p>
+
+      <h3>Por qué este caso</h3>
+      <p class="lead">Es una propuesta real que usa exactamente el vocabulario de hoy (DID, credencial verificable, emisor, holder, verificador, revocación, divulgación selectiva) en un mundo concreto: el ajedrez online y presencial. Y tiene huecos que ustedes ya pueden ver.</p>
+
+      <h3>El caso en breve (verificado en fuentes primarias, 16 oct 2026)</h3>
+      <div class="facts">
+        <div class="fact"><b>Quiénes</b>La Algorand Foundation y World Chess plc.</div>
+        <div class="fact"><b>Propuesta</b>DID + credenciales verificables para ajedrecistas.</div>
+        <div class="fact"><b>Estado</b>Propuesta + piloto pequeño; no es producto lanzado.</div>
+      </div>
+      <p><strong>Quiénes:</strong> la <strong>Algorand Foundation</strong> (fundación que apoya la blockchain Algorand) y <strong>World Chess plc</strong> (empresa que cotiza en Londres, LSE: CHSS; socio comercial oficial de la <strong>FIDE</strong>; opera worldchess.com, la plataforma online oficial para partidas con rating FIDE). <strong>La FIDE no es parte del proyecto:</strong> en el whitepaper aparece solo como posible emisor.</p>
+
+      <h3>Línea de tiempo</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Fecha</th><th>Qué pasó</th><th>Fuente</th></tr></thead>
+        <tbody>
+          <tr><td>24 abr 2025</td><td>Algorand Foundation y World Chess publican un <strong>whitepaper</strong>: “Universal Chess Passport”, una propuesta con DID + credenciales verificables para ajedrecistas. Colaboró el GM Evgenij Miroshnichenko; lo revisó la directora de la Decentralized Identity Foundation (DIF).</td><td>Nota de prensa + whitepaper (§9)</td></tr>
+          <tr><td>21 oct 2025</td><td>Renuevan su alianza por 2 años. Anuncian “The Tower” (programa de lealtad on-chain, con custodia de Algorand: Intermezzo) y, como <strong>próximo</strong>, el <strong>Global Chess Passport (GCP)</strong>, construido sobre <strong>Rocca</strong>, la billetera de identidad de Algorand.</td><td>Blog Algorand + anuncio regulatorio de World Chess (§9)</td></tr>
+          <tr><td>mar–may 2026</td><td>Repo abierto algorandfoundation/chess-passport (Apache-2.0): app móvil de demostración. Crea una frase de 24 palabras y una DID <strong>did:key</strong> con llaves Ed25519. El tablero dice que usa <strong>datos de ejemplo (mock)</strong>; hay funciones “MVP demo” (check-in por QR, subir prueba de un evento). Último commit visto: 4 may 2026.</td><td>GitHub (§9)</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="callout"><strong>Estado al 16 oct 2026:</strong> <strong>propuesta + piloto pequeño.</strong> La página oficial dice “en desarrollo a pequeña escala para probar su factibilidad”. <strong>No encontramos</strong> un lanzamiento público, cifras de usuarios ni adopción por la FIDE. No lo presenten como producto en uso.</div>
+
+      <h3>Lo que dicen las fuentes (y lo que no)</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Tema</th><th>Lo que dicen</th><th>Lo que no dicen / la tensión</th></tr></thead>
+        <tbody>
+          <tr><td>Emisores</td><td>Plataformas y organizaciones (World Chess, Chess.com, Lichess, FIDE, federaciones) emitirían credenciales: rating, títulos (GM, IM), participación en torneos, “buena conducta” y un KYC opcional de una sola vez.</td><td>No hay emisores comprometidos además de World Chess.</td></tr>
+          <tr><td>Holder</td><td>El jugador guarda DID y credenciales en su billetera; respaldo con una frase de 24 palabras; login con passkeys.</td><td>Si pierde la frase, pierde la identidad (como la nsec de S22).</td></tr>
+          <tr><td>Verificador</td><td>Plataformas y organizadores de torneos.</td><td>—</td></tr>
+          <tr><td>On-chain vs off-chain</td><td>DID “anclada en blockchain”; un “registro de datos verificable” público ayuda a auditar; los <strong>datos personales van off-chain</strong> (por la tensión con el “derecho al olvido” del GDPR). Algorand paga las comisiones del usuario agrupando transacciones.</td><td>El repo de demo usa did:key, que <strong>no usa blockchain</strong>. No especifican qué queda exactamente on-chain. Las fuentes no mencionan ASA ni NFT para el pasaporte.</td></tr>
+          <tr><td>Divulgación selectiva</td><td>“Compartir el título o rating verificado manteniendo privado lo demás”; ZK o divulgación selectiva “donde sea posible”.</td><td>Es aspiración (“should”), sin formato concreto (no dicen SD-JWT ni otro).</td></tr>
+          <tr><td>Revocación</td><td>El emisor puede revocar (ej. por trampa); cualquier verificador puede consultar el estado; piden apelación y criterios de reinstalación.</td><td>No dicen el mecanismo (¿lista de estado? ¿on-chain?). “Lo que hacen en una plataforma tiene consecuencias en otra”: eso es poder.</td></tr>
+          <tr><td>Correlación</td><td>“Un jugador podría tener varias DIDs.”</td><td>Una sola DID usada en todas las plataformas une todo su historial.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="pasos">
+      <h2>Pasos (con tiempos, en tríos)</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Tiempo</th><th>Qué hacen</th><th>Qué entregan en la plantilla</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>5 min</td><td>Lean el caso en breve y las dos tablas de arriba. Marquen qué es <strong>hecho</strong> (con fuente) y qué es <strong>promesa</strong>.</td><td>Fila “Estado real”</td></tr>
+          <tr><td>2</td><td>7 min</td><td><strong>Triángulo:</strong> quién emite, quién guarda, quién verifica, para 2 credenciales: “rating ≥ 2000” y “buena conducta”.</td><td>Sección 1</td></tr>
+          <tr><td>3</td><td>6 min</td><td><strong>Quién ve qué:</strong> llenen la tabla (emisor, jugador, verificador, cadena pública, quien roba la frase de 24 palabras).</td><td>Sección 2 (tabla)</td></tr>
+          <tr><td>4</td><td>6 min</td><td><strong>Divulgación selectiva, revocación y correlación:</strong> ¿sí / no / no se sabe? Citen la frase de la fuente.</td><td>Sección 3</td></tr>
+          <tr><td>5</td><td>6 min</td><td><strong>Qué se rompe:</strong> 2 fallas concretas (ej. emisor que revoca por error, frase perdida, una DID que une todo) + 1 cambio de diseño. Pásenlo a limpio y entreguen.</td><td>Secciones 4–5</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="entregable">
+      <h2>Entregable (único, en el PR del carnet, bajo ## LAB # 20)</h2>
+      <p>Un reporte de <strong>300–500 palabras</strong> por trío (cada integrante lo sube a su carnet con los nombres del trío), con la plantilla del Apéndice A completa: (1) triángulo, (2) tabla de quién ve qué, (3) divulgación selectiva / revocación / correlación, (4) qué se rompe, (5) un cambio de diseño, y <strong>fuentes</strong> (mínimo 2 enlaces de §9, citados donde se usan).</p>
+    </section>
+
+    <section id="rubrica">
+      <h2>Rúbrica (100 pts)</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Criterio</th><th>Pts</th><th>Qué se evalúa</th></tr></thead>
+        <tbody>
+          <tr><td>Triángulo bien mapeado</td><td>20</td><td>Emisor, holder y verificador correctos para las 2 credenciales; usan los términos de §4.5</td></tr>
+          <tr><td>Tabla de quién ve qué</td><td>20</td><td>5 filas coherentes con §4.10; distinguen lo que ve la cadena pública de lo que queda off-chain</td></tr>
+          <tr><td>Divulgación selectiva, revocación, correlación</td><td>20</td><td>Respuesta sí / no / no se sabe para cada una, con la cita de la fuente; nombran que el mecanismo de revocación no está especificado</td></tr>
+          <tr><td>Qué se rompe + cambio de diseño</td><td>20</td><td>2 fallas concretas y plausibles, 1 cambio que las ataca, conectado con §4.7–4.9</td></tr>
+          <tr><td>Hecho vs promesa + fuentes</td><td>10</td><td>Separan lo verificado de lo prometido; ≥ 2 fuentes de §9 citadas donde se usan; no inventan datos</td></tr>
+          <tr><td>Higiene y formato</td><td>10</td><td>300–500 palabras, bajo ## LAB # 20, sin datos personales reales</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="prohibido">
+      <h2>Prohibido (reglas duras)</h2>
+      <div class="callout warning">
+        <ul>
+          <li><strong>Cero datos personales reales:</strong> nada de DPI, CUI, fecha de nacimiento, fotos, correos ni ratings o cuentas reales de ustedes o de jugadores. <strong>Cualquier PII real = 0 en todo el lab.</strong></li>
+          <li><strong>Citen fuentes.</strong> Toda afirmación sobre el caso lleva su fuente de §9. <strong>Inventar un dato</strong> (fecha, cifra de usuarios, “la FIDE lo adoptó”) = 0 en “Hecho vs promesa”.</li>
+          <li>No creen cuentas, no instalen la app de demo, no compren ni muevan tokens, no escriban a las empresas.</li>
+          <li>No copien texto de la IA ni de otro trío; el reporte es suyo.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>Lab 20 · Global Chess Passport de Algorand + World Chess</footer>
+</body>
+</html>
