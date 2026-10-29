@@ -1,38 +1,49 @@
-## LAB # 20
+# LAB # 20
 
-### A.1 Encabezado
+## Caso real: Global Chess Passport de Algorand Foundation + World Chess
 
-**Caso:** Global Chess Passport de Algorand Foundation y World Chess.  
-**Estado real:** Es una propuesta con un piloto pequeño en desarrollo para probar su factibilidad. No existe evidencia de un lanzamiento público, cifras de usuarios ni adopción por parte de FIDE. La FIDE no es parte del proyecto.  
-**Fuentes:** [Página oficial de Algorand](https://algorand.co/universal-chess-passport) y [whitepaper](https://algorand.co/hubfs/Website-2024/PDFs/Algorand-Whitepaper-Identity%20and%20Verifiable%20Credential%20System%20for%20Chess-4.pdf).
+### A.1 Estado real: hecho vs. promesa
 
-### A.2 Triángulo
+El Global Chess Passport es una propuesta de la Algorand Foundation y World Chess en estado de propuesta y piloto pequeño. La página oficial indica que está en desarrollo a pequeña escala para probar su factibilidad. El whitepaper documenta una arquitectura propuesta basada en DIDs, credenciales verificables, wallets y estándares de identidad. World Chess participa en el proyecto, pero la FIDE no: solo aparece como posible emisora.
+
+La adopción general por la FIDE, una cantidad de usuarios, el lanzamiento público y la interoperabilidad completa son promesas, no hechos verificados. La demo usa `did:key` y datos mock, por lo que no demuestra que el producto final funcione sobre blockchain.
+
+Fuentes:
+
+- [Página oficial de Algorand](https://algorand.co/universal-chess-passport)
+- [Whitepaper del sistema](https://algorand.co/hubfs/Website-2024/PDFs/Algorand-Whitepaper-Identity%20and%20Verifiable%20Credential%20System%20for%20Chess-4.pdf)
+
+### A.2 Triángulo de credenciales
 
 | Credencial | Emisor | Holder | Verificador |
 |---|---|---|---|
-| Rating ≥ 2000 | Plataforma donde se obtuvo el rating, como World Chess | Jugador, desde su wallet | Otra plataforma u organizador |
-| Buena conducta | Plataforma, federación u organización que certifica la conducta | Jugador | Plataforma u organizador |
+| Rating ≥ 2000 | La plataforma donde el jugador obtuvo el rating, por ejemplo World Chess. | El jugador, que conserva la credencial en su wallet. | Otra plataforma u organizador de torneo que necesite comprobar el nivel. |
+| Buena conducta | La plataforma, federación u organización que certifica la conducta del jugador. | El jugador, como titular de la credencial verificable. | Una plataforma u organizador que necesite verificar su reputación. |
 
-El emisor firma una afirmación, el holder conserva la credencial y el verificador comprueba su autenticidad. Las credenciales se guardarían en la wallet del jugador.
+El emisor afirma, el holder conserva y el verificador comprueba la credencial.
 
 ### A.3 Quién ve qué
 
-| Actor | Ve | No ve |
-|---|---|---|
-| Emisor | Datos necesarios para emitir la credencial | Toda la actividad del jugador |
-| Jugador | Sus DIDs y credenciales | Claves privadas ajenas |
-| Verificador | La prueba necesaria, por ejemplo rating ≥ 2000 | Datos personales innecesarios |
-| Cadena pública | Posibles DIDs, pruebas o estados, si se implementan on-chain | Datos personales, que deberían estar off-chain |
-| Quien roba la frase | Potencialmente la wallet, DIDs, credenciales y fondos | Información que nunca haya estado en esa wallet |
+| Actor | Ve | No ve o no debería ver | Fuente |
+|---|---|---|---|
+| Emisor | Datos necesarios para emitir o actualizar. | Toda la actividad en otras plataformas. | Whitepaper |
+| Jugador | Sus DIDs y credenciales en la wallet. | Claves privadas ajenas. | Whitepaper |
+| Verificador | La prueba necesaria y su estado. | Datos personales innecesarios; estos deberían quedar off-chain. | Whitepaper |
+| Cadena pública | Posibles DIDs, pruebas, metadatos o estados on-chain. | Datos personales. La demo usa `did:key`, no blockchain. | Whitepaper + caso |
+| Quien roba la frase de 24 palabras | Potencialmente wallet, DIDs, credenciales y fondos. | Lo que nunca estuvo en esa wallet. | Whitepaper |
 
-La demo mencionada en el caso usa `did:key` y datos mock; por tanto, no debe presentarse como evidencia de que el sistema final ya funciona sobre blockchain.
+### A.4 Divulgación selectiva, revocación y correlación
 
-### A.4 Divulgación, revocación y correlación
+- **Divulgación selectiva: sí como promesa.** Se propone compartir solo la información necesaria y usar ZK o selective disclosure, pero no se define un formato concreto.
 
-- **Divulgación selectiva: sí como promesa.** Se propone compartir únicamente el rating o título necesario, manteniendo privados los demás datos; también se mencionan ZK y selective disclosure.
-- **Revocación: sí como capacidad propuesta, pero el mecanismo no está especificado.** El emisor podría revocar una credencial por trampa y otros verificadores consultar su estado.
-- **Correlación: no se sabe, pero existe riesgo.** Varias plataformas podrían relacionar todo el historial mediante una misma DID. Usar varias DIDs reduciría ese riesgo.
+- **Revocación: sí como capacidad propuesta, pero el mecanismo no se sabe.** El emisor podría revocar y los verificadores consultar el estado. No se especifica si habría lista de estado, registro on-chain u otro mecanismo; sí se mencionan apelaciones.
+
+- **Correlación: no se sabe, pero existe un riesgo.** Una misma DID puede unir ratings, torneos y reputación. Se contemplan varias DIDs, pero no se garantiza evitar la correlación.
+
+Fuente: [Whitepaper, principios de privacidad y revocación](https://algorand.co/hubfs/Website-2024/PDFs/Algorand-Whitepaper-Identity%20and%20Verifiable%20Credential%20System%20for%20Chess-4.pdf)
 
 ### A.5 Qué se rompe y cambio de diseño
 
-Una falla sería que un emisor revoque por error una credencial y afecte al jugador en varias plataformas. Otra sería perder o revelar la frase de 24 palabras, porque quien la obtenga podría controlar la identidad y las credenciales. Como cambio de diseño, usaría DIDs separados por contexto, recuperación multifirma y un proceso formal de apelación antes de propagar una revocación global.
+Una falla sería que un emisor revoque por error una credencial de buena conducta y el efecto se propague a otras plataformas. Otra sería perder o revelar la frase de 24 palabras, permitiendo controlar la identidad, credenciales y fondos de la wallet.
+
+Proponemos DIDs separadas por contexto, recuperación multifirma y apelación antes de una revocación global. Las DIDs reducen la correlación, la multifirma limita el daño de una frase comprometida y la apelación protege frente a errores del emisor. Los datos personales deberían permanecer off-chain.
